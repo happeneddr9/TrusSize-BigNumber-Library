@@ -48,20 +48,36 @@ Tiny portable [Arbitrary-precision arithmetic](https://en.wikipedia.org/wiki/Arb
 - implicit cast for `BigNumber<OtherWordSize>`, convert this to other size class.
 
 ### Others:
-- `std::numeric_limits`: standard C++ numeric limits library support.
+- `std::numeric_limits`: (in test) standard C++ numeric limits library support.
 
 ## Usage
 ### Create a BigNumber
+
 ```cpp
+#include <iostream>
 #include "BigNumber.h"      // include BigNumber library.
 using BigMath::BigNumber;   // BigNumber define in BigMath namespace.
 BigNumber<8> myNumber = 0;  // Create a 8-wordsize (256-bits) signed integer.
 ```
+
 ### Assignment to your BigNumber
 ```cpp
-myNumber = 429264526;           // Assignment by int.
-myNumber = 157744114380602‬ULL;  // Assignment by uint64_t.
-myNumber = 24512.5f             // Assignment by float.
-myNumber = 3.14159e25           // Assignment by double.
+BigNumber<8> myNumber = 429264526;   // initialize by int.
+myNumber = 157744114380602‬ULL;       // Assignment by uint64_t.
+myNumber = 24512.5f                  // Assignment by float.
+myNumber = 3.14159e25                // Assignment by double.
 ```
 
+### Assignment by string
+
+```cpp
+// cout overloading in main.cpp
+BigNumber<8> myNumber = "-14143141592653589";  // initialize by string (DEC).
+cout << myNumber << endl;                      // output: -14143141592653589
+myNumber = "014143141592653589";               // Assignment by string (OCT, use '0' prefix), 8 and 9 will be truncated.
+cout << myNumber << endl;                      // output: 25572109
+myNumber = "0b0101100101101010";               // Assignment by string (BIN, use '0b' or '0B' prefix).
+cout << myNumber << endl;                      // output: 22890
+myNumber = "0xBadCAFEBABE";                    // Assignment by string (HEX, use '0x' or '0X' prefix).
+cout << myNumber << endl;                      // output: 12841062939326
+```
