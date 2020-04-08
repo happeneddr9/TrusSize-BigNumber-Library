@@ -1,0 +1,11 @@
+﻿  BigNumber.cpp
+  main.cpp
+C:\Users\happe\OneDrive\桌面\BigNumber\BigNumber\BigNumber.h(1,1): warning C4819: 檔案含有無法在目前字碼頁 (950) 中表示的字元。請以 Unicode 格式儲存檔案以防止資料遺失
+C:\Users\happe\OneDrive\桌面\BigNumber\BigNumber\Details.h(1,1): warning C4819: 檔案含有無法在目前字碼頁 (950) 中表示的字元。請以 Unicode 格式儲存檔案以防止資料遺失
+C:\Users\happe\OneDrive\桌面\BigNumber\BigNumber\BigNumberFunctions.h(1,1): warning C4819: 檔案含有無法在目前字碼頁 (950) 中表示的字元。請以 Unicode 格式儲存檔案以防止資料遺失
+C:\Users\happe\OneDrive\桌面\BigNumber\BigNumber\BigNumberPrint.h(1,1): warning C4819: 檔案含有無法在目前字碼頁 (950) 中表示的字元。請以 Unicode 格式儲存檔案以防止資料遺失
+C:\Users\happe\OneDrive\桌面\BigNumber\BigNumber\BigNumberGlobalFunc.h(1,1): warning C4819: 檔案含有無法在目前字碼頁 (950) 中表示的字元。請以 Unicode 格式儲存檔案以防止資料遺失
+C:\Users\happe\OneDrive\桌面\BigNumber\BigNumber\BigNumberLimits.h(1,1): warning C4819: 檔案含有無法在目前字碼頁 (950) 中表示的字元。請以 Unicode 格式儲存檔案以防止資料遺失
+C:\Users\happe\OneDrive\桌面\BigNumber\BigNumber\main.cpp(86,3): warning C4566: 由通用字元名稱 '\u202C' 表示的字元，無法在目前的字碼頁中表示 (950)
+  正在產生程式碼...
+  BigNumber.vcxproj -> C:\Users\happe\OneDrive\桌面\BigNumber\Debug\BigNumber.exe

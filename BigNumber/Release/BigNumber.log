@@ -1,0 +1,3 @@
+﻿  正在產生程式碼
+LINK : fatal error C1354: 存取上一個物件檔案 C:\Users\happe\OneDrive\桌面\BigNumber\Release\BigNumber.iobj 時發生錯誤 (corrupted symbol table)
+LINK : fatal error LNK1257: 無法產生程式碼
