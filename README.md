@@ -8,7 +8,9 @@ Tiny portable [Arbitrary-precision arithmetic](https://en.wikipedia.org/wiki/Arb
 - C++11 or later.
 
 ## Supported operation list:
-
+>Most of the member are constexpr.
+### Constructor
+- `BigNumber<size_t WordSize>`: WordSize can be any positive integer.
 ### Arithmetic & Assignment Arithmetic:
 - Addition:         `A + B,	A += B, A += 9999;`
 - Subtraction:  	`A - B,	A -= B, A -= 9999;`
@@ -32,10 +34,11 @@ Tiny portable [Arbitrary-precision arithmetic](https://en.wikipedia.org/wiki/Arb
 - LShift_word:	`A.lshift_word(n);	n is unsigned int;`
 
 ### Special:
-- `abs`:	Absolute in integer			`A.abs();`
-- `pow`:	power of in integer			`A.pow(B), A.pow(3);`
-- `isqrt`:	square root in integer		`A.isqrt();`
-- `divmod`:	division with remainder		`A.divmod(B, C);`
+- `abs`:	Absolute in integer.			`A.abs();`
+- `pow`:	power of in integer.			`A.pow(B), A.pow(3);`
+- `isqrt`:	square root in integer.		`A.isqrt();`
+- `divmod`:	division with remainder.		`A.divmod(B, C);`
+- `random`: get random value in big range. `A.random(min, Max);`
 
 ### Cast:
 - `toInt`:		return int (32-bits) type, may overflow.
@@ -91,13 +94,24 @@ float fp = static_cast<float>(d);    // to float, fp = 3060193579957394189770673
 cout << (fp == std::pow(3141592.0f, 5)) << endl;    // output: true
 ```
 
+### constant BigNumber
+```cpp
+// convert in compile-time!
+const BigNumber<4> BigNumberArray[] = {
+  0, 1234567890UL, 0xFEDC123, "0b0101110101011000010110111111",
+  3.1415926e20, 1.5123f
+};
+```
 
+## Testing platform
+- Visual Studio 2019 C++
+- Eclipse IDE with MinGW
 
-
-
-
-
-
-
-
+## Up Next
+- `factorial`
+- `log` in integer version
+- completely support built-in data types
+- completely support built-in numeric check
+- optimize for division and multiplication
+- Fixed-point library base on BigNumber
 
