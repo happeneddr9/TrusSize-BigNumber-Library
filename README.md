@@ -78,6 +78,26 @@ myNumber = "014143141592653589";               // Assignment by string (OCT, use
 cout << myNumber << endl;                      // output: 25572109
 myNumber = "0b0101100101101010";               // Assignment by string (BIN, use '0b' or '0B' prefix).
 cout << myNumber << endl;                      // output: 22890
-myNumber = "0xBadCAFEBABE";                    // Assignment by string (HEX, use '0x' or '0X' prefix).
-cout << myNumber << endl;                      // output: 12841062939326
+myNumber = "0xBadCAFE15BadE7707";              // Assignment by string (HEX, use '0x' or '0X' prefix).
+cout << myNumber << endl;                      // output: 215437285893945063175
 ```
+
+### Some operations
+```cpp
+BigNumber<8> d = 3141592.0f;  // d = 3141592
+d.pow(10);  // d = 93647852647034719970876567502856390570791695495376238755734093824
+d.isqrt();  // d = 306019366457475563428218912735232
+float fp = static_cast<float>(d);    // to float, fp = 306019357995739418977067367137280.00
+cout << (fp == std::pow(3141592.0f, 5)) << endl;    // output: true
+```
+
+
+
+
+
+
+
+
+
+
+
