@@ -1,4 +1,4 @@
-# TrueSize-BigNumber-class
+# TrueSize-BigNumber-Library
 Static variadic large-size integer without dynamic memory allocation
 
 ## Description
