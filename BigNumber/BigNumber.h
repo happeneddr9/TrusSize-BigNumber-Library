@@ -394,9 +394,11 @@ namespace BigMath {
 			constexpr BigNumber operator ~() const;
 			constexpr bool operator !() const;
 
+
+			// FIXME: don't know why it not working at BigNumberFunctions.h in Visual C++.
 			template<size_t OtherWordSize>
 			constexpr operator BigNumber<OtherWordSize>() const;	
-			// FIXME: don't know why it not working at BigNumberFunctions.h in Visual C++.
+			
 			constexpr explicit operator int() const;
 			constexpr explicit operator uint32_t() const;
 			constexpr explicit operator int64_t() const;

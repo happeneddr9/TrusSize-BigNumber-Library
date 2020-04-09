@@ -936,6 +936,7 @@ namespace BigMath {
 	 *	@brief:		BigNumber Power operation
 	 *	@Method:	a = b ^ 5 => a = b * (b ^ 4)
 	 *				a = b ^ 48 => a = (b ^ 16) * (b ^ 32)
+	 *				reference from java pow method.
 	 */
 	template <size_t WordSize>
 	constexpr BigNumber<WordSize>& BigNumber<WordSize>::pow(uint32_t exp) {
