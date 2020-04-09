@@ -1,0 +1,32 @@
+﻿  main.cpp
+C:\Users\happe\OneDrive\桌面\BigNumber\BigNumber\BigNumber.h(1,1): warning C4819: 檔案含有無法在目前字碼頁 (950) 中表示的字元。請以 Unicode 格式儲存檔案以防止資料遺失
+C:\Users\happe\OneDrive\桌面\BigNumber\BigNumber\Details.h(1,1): warning C4819: 檔案含有無法在目前字碼頁 (950) 中表示的字元。請以 Unicode 格式儲存檔案以防止資料遺失
+C:\Users\happe\OneDrive\桌面\BigNumber\BigNumber\BigNumberFunctions.h(1,1): warning C4819: 檔案含有無法在目前字碼頁 (950) 中表示的字元。請以 Unicode 格式儲存檔案以防止資料遺失
+C:\Users\happe\OneDrive\桌面\BigNumber\BigNumber\BigNumberPrint.h(1,1): warning C4819: 檔案含有無法在目前字碼頁 (950) 中表示的字元。請以 Unicode 格式儲存檔案以防止資料遺失
+C:\Users\happe\OneDrive\桌面\BigNumber\BigNumber\BigNumberGlobalFunc.h(1,1): warning C4819: 檔案含有無法在目前字碼頁 (950) 中表示的字元。請以 Unicode 格式儲存檔案以防止資料遺失
+C:\Users\happe\OneDrive\桌面\BigNumber\BigNumber\BigNumberLimits.h(1,1): warning C4819: 檔案含有無法在目前字碼頁 (950) 中表示的字元。請以 Unicode 格式儲存檔案以防止資料遺失
+C:\Users\happe\OneDrive\桌面\BigNumber\BigNumber\main.cpp(86,3): warning C4566: 由通用字元名稱 '\u202C' 表示的字元，無法在目前的字碼頁中表示 (950)
+C:\Users\happe\OneDrive\桌面\BigNumber\BigNumber\BigNumberFunctions.h(1232,1): warning C4267: '正在初始化': 將 'size_t' 轉換為 'uint32_t'，資料可能遺失
+C:\Users\happe\OneDrive\桌面\BigNumber\BigNumber\BigNumberFunctions.h(1222): message : 編譯 類別 樣板 成員函式 'BigMath::BigNumber<4>::operator float(void) const' 期間
+C:\Users\happe\OneDrive\桌面\BigNumber\BigNumber\main.cpp(153): message : 請參考正在進行編譯的函式 樣板 具現化 'BigMath::BigNumber<4>::operator float(void) const'
+C:\Users\happe\OneDrive\桌面\BigNumber\BigNumber\main.cpp(77): message : 請參考正在進行編譯的 類別 樣板 具現化 'BigMath::BigNumber<4>'
+C:\Users\happe\OneDrive\桌面\BigNumber\BigNumber\BigNumberFunctions.h(1278,1): warning C4267: '正在初始化': 將 'size_t' 轉換為 'uint32_t'，資料可能遺失
+C:\Users\happe\OneDrive\桌面\BigNumber\BigNumber\BigNumberFunctions.h(1268): message : 編譯 類別 樣板 成員函式 'BigMath::BigNumber<8>::operator double(void) const' 期間
+C:\Users\happe\OneDrive\桌面\BigNumber\BigNumber\main.cpp(206): message : 請參考正在進行編譯的函式 樣板 具現化 'BigMath::BigNumber<8>::operator double(void) const'
+C:\Users\happe\OneDrive\桌面\BigNumber\BigNumber\BigNumberFunctions.h(261,1): warning C4267: '正在初始化': 將 'size_t' 轉換為 'uint32_t'，資料可能遺失
+C:\Users\happe\OneDrive\桌面\BigNumber\BigNumber\BigNumberFunctions.h(255): message : 編譯 類別 樣板 成員函式 'void BigMath::BigNumber<4>::str2num(const char *)' 期間
+C:\Users\happe\OneDrive\桌面\BigNumber\BigNumber\BigNumberFunctions.h(67): message : 請參考正在進行編譯的函式 樣板 具現化 'void BigMath::BigNumber<4>::str2num(const char *)'
+C:\Users\happe\OneDrive\桌面\BigNumber\BigNumber\BigNumberFunctions.h(76): message : 編譯 類別 樣板 成員函式 'BigMath::BigNumber<4>::BigNumber(double)' 期間
+C:\Users\happe\OneDrive\桌面\BigNumber\BigNumber\main.cpp(90): message : 請參考正在進行編譯的函式 樣板 具現化 'BigMath::BigNumber<4>::BigNumber(double)'
+C:\Users\happe\OneDrive\桌面\BigNumber\BigNumber\BigNumberFunctions.h(1058,1): warning C4267: '正在初始化': 將 'size_t' 轉換為 'uint32_t'，資料可能遺失
+C:\Users\happe\OneDrive\桌面\BigNumber\BigNumber\BigNumberFunctions.h(1056): message : 編譯 類別 樣板 成員函式 'BigMath::BigNumber<4> &BigMath::BigNumber<4>::operator <<=(size_t)' 期間
+C:\Users\happe\OneDrive\桌面\BigNumber\BigNumber\BigNumberFunctions.h(1241): message : 請參考正在進行編譯的函式 樣板 具現化 'BigMath::BigNumber<4> &BigMath::BigNumber<4>::operator <<=(size_t)'
+C:\Users\happe\OneDrive\桌面\BigNumber\BigNumber\BigNumberFunctions.h(1079,1): warning C4267: '正在初始化': 將 'size_t' 轉換為 'uint32_t'，資料可能遺失
+C:\Users\happe\OneDrive\桌面\BigNumber\BigNumber\BigNumberFunctions.h(1077): message : 編譯 類別 樣板 成員函式 'BigMath::BigNumber<4> &BigMath::BigNumber<4>::operator >>=(size_t)' 期間
+C:\Users\happe\OneDrive\桌面\BigNumber\BigNumber\BigNumberFunctions.h(1245): message : 請參考正在進行編譯的函式 樣板 具現化 'BigMath::BigNumber<4> &BigMath::BigNumber<4>::operator >>=(size_t)'
+  正在產生程式碼
+  0 of 538 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
+  已完成程式碼產生
+  BigNumber.vcxproj -> C:\Users\happe\OneDrive\桌面\BigNumber\x64\Release\BigNumber.exe

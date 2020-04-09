@@ -82,7 +82,7 @@ const BigNumber<4> BigNumberArray[] = {
 		"123456789",						// construct by string (Dec), value = 123456789
 		"0123456789",						// construct by string (Oct, the '0' prefix), value = 342391
 											// 8 and 9 will be truncated.
-		"0xBadCAFEBABE",					// construct by string (Hex), value = 12841062939326
+		"0xBadCAFE15BadE7707",				// construct by string (Hex), value = 215437285893945063175
 		"0b0101110101011000010110111111‬",	// construct by string (Binary), value = 94879487
 		1.414f,								// construct by float, rounding to 1
 		1.5123f,							// construct by float, rounding to 2
