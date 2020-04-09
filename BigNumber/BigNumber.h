@@ -154,6 +154,9 @@
  *			Added two versions toString()!
  *		2020/04/08:
  *			Optimized for division and modulus.
+ *		2020/04/09:
+ *			Added begin() and end() for iterator operations.
+ *			A little optimize for toString() of decimal mode.
  *
  *
  */
@@ -265,6 +268,10 @@ namespace BigMath {
 
 	template<size_t WordSize>
 	class BigNumber : public BigNumber_Base {
+		public:	/* using */
+			using const_iterator = const uint32_t*;
+			using iterator = uint32_t*;
+
 		public:	
 			static constexpr size_t IndexSize = WordSize;
 
@@ -352,6 +359,9 @@ namespace BigMath {
 			constexpr float toFloat() const;
 			constexpr double toDouble() const;
 
+			/* to string */
+			constexpr uint32_t digits10() const;
+			constexpr char * toStringDec(char* str) const;						// itoa dec version
 			constexpr char * toString(char * str, uint8_t base = 10) const;		// itoa
 			constexpr std::string toString(uint8_t base = 10) const;			// for C++ std::string
 
@@ -364,9 +374,28 @@ namespace BigMath {
 			constexpr BigNumber& pow(uint32_t exp);
 			constexpr BigNumber& isqrt();
 			constexpr BigNumber& random(BigNumber range_min = minValue(), BigNumber range_max = maxValue());
+			constexpr BigNumber factorial(uint32_t exp) const;
 
 		public: /* operators */
 
+			/* iterator support */
+			constexpr iterator begin() noexcept {
+				return iterator(&(numidx[0]));
+			}
+
+			constexpr iterator end() noexcept {
+				return iterator(&(numidx[WordSize]));
+			}
+
+			constexpr const_iterator begin() const noexcept {
+				return const_iterator(&(numidx[0]));
+			}
+
+			constexpr const_iterator end() const noexcept {
+				return const_iterator(&(numidx[WordSize]));
+			}
+
+			/* operators overload */
 			constexpr uint32_t& operator[](size_t idx);
 			constexpr const uint32_t& operator[](size_t idx) const;
 
@@ -437,8 +466,14 @@ namespace BigMath {
 			constexpr bool isBinChar(const char c) const;
 
 		protected:
-			uint32_t numidx[WordSize];
+			union {
+				uint32_t numidx[WordSize];
+				uint16_t numidx_16b[WordSize * 2];
+				uint8_t numidx_8b[WordSize * 4];
+			};
 	};
+
+	/* others global function */
 
 	// return teo times size BigNumber
 	template <size_t WordSize>

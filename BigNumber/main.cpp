@@ -3,7 +3,8 @@
 
 #include <iostream>
 #include <limits>
-#include <complex>
+#include <vector>
+#include <chrono>
 #include "BigNumber.h"
 
 using std::cout;
@@ -49,7 +50,8 @@ std::ostream& operator<<(std::ostream& os, const BigMath::BigNumber<WordSize>& v
 
 	char buff[maxLength];
 	memset(buff, '\0', maxLength);
-	os << val.toString(buff);
+	val.toStringDec(buff);
+	os << buff;
 
 	/*char *str = &(buff[maxLength - 2]);
 	BigMath::BigNumber<WordSize> tmp = val;
@@ -226,12 +228,14 @@ typedef BigNumber<2> BigNum64;
 typedef BigNumber<4> BigNum128;
 typedef BigNumber<8> BigNum256;
 typedef BigNumber<32> BigNum1024;
+typedef BigNumber<64> BigNum2048;
 typedef BigNumber<256> BigNum8192;
 
-using test_type = BigNum32;
+using test_type = BigNum256;
 
 int main() {
-	test_type test = 4096;
+	test_type test = 0;
+	test_type ver = 0;
 	cout << std::boolalpha;
 	cout << std::setprecision(10);
 
@@ -240,16 +244,65 @@ int main() {
 			cout << "val: " << test << " lmost one: " << test.high_bit() << " log2: " << test.is_n_power_of_2() << endl;
 		++test;
 	}*/
-	
+	cout << "=============================================================================" << '\n';
+	auto start = std::chrono::system_clock::now();
+
 	BigNumberDemo(cout);
 
-	cout << "BigNum256 is BigNumber<32>" << endl;
+	auto end = std::chrono::system_clock::now();
+	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	cout << "time used: " << elapsed.count() << " us\n\n\n";
+	srand(time(0));
+
+	cout << "BigNumbers size = " << sizeof(test_type) << endl;
+	cout << "=============================================================================" << '\n';
+	cout << "multiplication speed test" << '\n';
+	start = std::chrono::system_clock::now();
+	
+	for (uint32_t i = 0; i < 100; ++i) {
+		test.random();
+		ver.random();
+		for (uint32_t j = 0; j < 100; ++j)
+			test *= ver;
+	}
+	end = std::chrono::system_clock::now();
+	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	cout << "time used: " << elapsed.count() << " us" << '\n';
+
+	cout << "=============================================================================" << '\n';
+	cout << "division speed test" << '\n';
+	start = std::chrono::system_clock::now();
+	for (uint32_t i = 0; i < 100; ++i) {
+		test.random();
+		ver.random();
+		for (uint32_t j = 0; j < 100; ++j)
+			test /= ver;
+	}
+	end = std::chrono::system_clock::now();
+	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	cout << "time used: " << elapsed.count() << " us" << '\n';
+
+	cout << "=============================================================================" << '\n';
+	
+	start = std::chrono::system_clock::now();
 	cout << "Maximum: " << std::numeric_limits<test_type>::max() << endl;
 	cout << "minimum: " << std::numeric_limits<test_type>::min() << endl;
-	for (uint32_t i = 0; i < 10; ++i)
-		cout << (test / (i + 1)) << endl;
-	cout << endl;
+	end = std::chrono::system_clock::now();
 
+	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	cout << "print time used: " << elapsed.count() << " us" << '\n';
+	cout << "=============================================================================" << '\n';
+	
+	test.random();
+	start = std::chrono::system_clock::now();
+	cout << test.toString(16) << endl;			// to HEX string
+	end = std::chrono::system_clock::now();
+
+	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	cout << "print HEX time used: " << elapsed.count() << " us" << '\n';
+	cout << "=============================================================================" << '\n';
+	cout << endl;
+	//cout << (BigNumberArray[11] % 10000000u) << endl;
 
 	return 0;
 }

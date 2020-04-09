@@ -616,17 +616,86 @@ namespace BigMath {
 		return static_cast<double>(*this);
 	}
 
+	/**
+	 *	@brief: calculate how may digits in base of ten.
+	 *	@Method: reference from "Three Optimization Tips for C++" by Alexandrescu.
+	 *
+	 */
+	template<size_t WordSize>
+	inline constexpr uint32_t BigNumber<WordSize>::digits10() const
+	{
+		BigNumber<WordSize + 1> tmp(*this);
+		uint32_t result = 1;
+		tmp.abs();
+		for (;;) {
+			// BigNumbers division is slow so do it for a group of four digits instead
+			// of for every digit. 
+			if (tmp < 10) return result;
+			if (tmp < 100) return result + 1;
+			if (tmp < 1000) return result + 2;
+			if (tmp < 10000) return result + 3;
+			tmp /= 10000;
+			result += 4;
+		}
+	}
+
+	template<size_t WordSize>
+	inline constexpr char* BigNumber<WordSize>::toStringDec(char* str) const
+	{
+		if (str == nullptr)
+			return str;
+		using larger_type = BigMath::BigNumber<WordSize + 1>;
+		using normal_type = BigMath::BigNumber<WordSize>;
+
+		if (isNegative()) {	// if base is not special, check negative.
+			*str = '-';
+			++str;
+		}
+		
+		larger_type tmp_larger = static_cast<larger_type>(*this);
+		larger_type math_tmp;
+
+		tmp_larger.abs();
+		uint32_t digits = tmp_larger.digits10();
+		uint32_t div_num;
+		uint32_t next = digits;
+
+		str[next] = '\0';
+		--next;
+
+		static const uint32_t div_digits = 9;
+		static const uint32_t div_value = 1000000000u;
+		uint32_t i;
+		bool zero_check;
+		do {
+			// use BigNumber divide to 10 is too slow, so that it divide a larger number,
+			// and use the Remainder as new dividend for modulus 10 calculation.
+			tmp_larger.divmod(div_value, math_tmp);
+			div_num = static_cast<uint32_t>(math_tmp);
+			zero_check = !tmp_larger.isZero();
+			for (i = 0; i < div_digits; ++i) {
+				auto const q = div_num / 10;
+				str[next] = "0123456789"[div_num % 10u];
+				--next;
+				if (q == 0 && !zero_check) {
+					break;
+				}
+				div_num = q;
+			}
+		} while (zero_check);
+		return &(str[next]);
+	}
+
 	template <size_t WordSize>
 	constexpr char* BigNumber<WordSize>::toString(char *str, uint8_t base) const{
 		if(str == nullptr)
 			return str;
 		using larger_type = BigMath::BigNumber<WordSize + 1>;
 		using normal_type = BigMath::BigNumber<WordSize>;
-		normal_type tmp = *this;
+		//normal_type tmp = *this;
 		int val_buf;
-		char * ptr = str;
-		char * ptr_start = str;		// string start at
 		char tmp_char;
+		
 		// optimize for Binary, Quaternary, Octal or Hexadecimal.
 		// 0xAB, A = shift valve, B = bitmask.
 		uint8_t bitwise_opti = (base == 16) ?
@@ -638,47 +707,56 @@ namespace BigMath {
 		if(base < 2)	// can't be zero or one;
 			base = 10;	// set default
 
-		if (tmp.isNegative() && !bitwise_opti) {	// if base is not special, check negative.
-			*str = '-';
-			++ptr;
-			++str;
+		if (base == 10) {
+			return toStringDec(str);
 		}
+		else {
+			char* ptr = str;
+			if (bitwise_opti > 0) {						// the base-value in the optimize-list.
+				// contrast with other base value, it convert very fast.
+				normal_type tmp(*this);
+				uint8_t bit_shift = bitwise_opti >> 4;
+				uint8_t bit_mask = bitwise_opti & 0x0F;
+				do {
+					val_buf = tmp[0] & bit_mask;
+					*str = "0123456789ABCDEF"[val_buf];
+					++str;
+					tmp >>= bit_shift;
+				} while (!tmp.isZero());
+			}
+			else {		// others base value.
 
-		if (bitwise_opti > 0) {
-			uint8_t bit_shift = bitwise_opti >> 4;
-			uint8_t bit_mask = bitwise_opti & 0x0F;
-			do {
-				val_buf = tmp[0] & bit_mask;
-				*str = "0123456789ABCDEF"[val_buf];
-				++str;
-				tmp >>= bit_shift;
-			} while (!tmp.isZero());
-		} else {
-			larger_type tmp_larger = static_cast<larger_type>(tmp);
-			larger_type math_tmp;
-			tmp_larger.abs();
-			do {
-				tmp_larger.divmod(base, math_tmp);
-				val_buf = math_tmp[0];
-				*str = (val_buf < 10) ? "0123456789"[val_buf] : (val_buf - 'A');
-				++str;
-			} while (!tmp_larger.isZero());
-		}
+				if (isNegative()) {	// if base is not special, check negative.
+					*str = '-';
+					++str;
+					++ptr;
+				}
 
-		*str = '\0';
-		--str;
+				larger_type tmp_larger = static_cast<larger_type>(*this);
+				larger_type math_tmp;
 
-
-		// reverse char string
-		while (ptr <= str) {
-			tmp_char = *ptr;
-			*ptr = *str;
-			*str = tmp_char;
-			++ptr;
+				tmp_larger.abs();
+				do {
+					tmp_larger.divmod(base, math_tmp);
+					val_buf = math_tmp[0];
+					*str = (val_buf < 10) ? "0123456789"[val_buf] : (val_buf - 'A');
+					++str;
+				} while (!tmp_larger.isZero());
+			}
+			*str = '\0';
+			char* ptr_end = str;		// string end at
 			--str;
-		}
 
-		return ptr_start;
+			// reverse char string
+			while (ptr <= str) {
+				tmp_char = *ptr;
+				*ptr = *str;
+				*str = tmp_char;
+				++ptr;
+				--str;
+			}
+			return ptr_end;
+		}
 	}
 
 	template <size_t WordSize>
@@ -698,7 +776,8 @@ namespace BigMath {
 		lowest_size *= (WordSize + 1);
 		lowest_size += 4;
 		char *cstr = new char[lowest_size];
-		str = toString(cstr, base);
+		toString(cstr, base);
+		str = cstr;
 		delete [] cstr;
 		return str;
 	}
@@ -781,10 +860,7 @@ namespace BigMath {
 	 */
 	template <size_t WordSize>
 	constexpr BigNumber<WordSize>& BigNumber<WordSize>::operator *=(const BigNumber<WordSize> &rhs) {
-		
-		
 		//bool self_nega, rhs_nega;
-		
 
 		/*self_nega = isNegative();
 		rhs_nega = rhs_tmp.isNegative();
@@ -1021,6 +1097,18 @@ namespace BigMath {
 		}
 
 		return *this;
+	}
+
+	/**
+	 *	@brief: get factorial of exp, Does not affect its own value.
+	 */
+	template<size_t WordSize>
+	inline constexpr BigNumber<WordSize> BigNumber<WordSize>::factorial(uint32_t exp) const
+	{
+		BigNumber<WordSize> tmp(1);
+		for (uint32_t i = 1; i <= exp; ++i)
+			tmp = tmp * i;
+		return tmp;
 	}
 
 	/* Logic operator */
