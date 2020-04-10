@@ -87,7 +87,8 @@ cout << myNumber << endl;                      // output: 215437285893945063175
 
 ### Some operations
 ```cpp
-BigNumber<8> d = 3141592.0f;  // d = 3141592
+BigNumber<8> d = -3141592.0f;	// d = -3141592
+d.abs();						// d = 3141592
 d.pow(10);  // d = 93647852647034719970876567502856390570791695495376238755734093824
 d.isqrt();  // d = 306019366457475563428218912735232
 float fp = static_cast<float>(d);    // to float, fp = 306019357995739418977067367137280.00
@@ -108,10 +109,8 @@ const BigNumber<4> BigNumberArray[] = {
 - Eclipse IDE with MinGW
 
 ## Up Next
-- `factorial`
 - `log` in integer version
 - completely support built-in data types
 - completely support built-in numeric check
-- optimize for division and multiplication
 - Fixed-point library base on BigNumber
 
