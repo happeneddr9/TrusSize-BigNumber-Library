@@ -171,6 +171,8 @@
 #include <random>
 #include "Details.h"
 
+
+
 namespace BigMath {
 	std::random_device _random_device;
 
@@ -352,6 +354,7 @@ namespace BigMath {
 			constexpr BigNumber& invert();
 			constexpr BigNumber& negate();
 			constexpr BigNumber& clear();
+			constexpr BigNumber& add(const BigNumber& rhs, size_t start_at = 0);
 
 			/* built-in type cast */
 			constexpr int toInt() const;
@@ -423,10 +426,30 @@ namespace BigMath {
 			constexpr BigNumber operator ~() const;
 			constexpr bool operator !() const;
 
-
-			// FIXME: don't know why it not working at BigNumberFunctions.h in Visual C++.
+			/**
+			 *	@brief:		BigNumber convert to any size
+			 * 	@Method:	FIXME: don't know why it not working at BigNumberFunctions.h in Visual C++.
+			 */
 			template<size_t OtherWordSize>
-			constexpr operator BigNumber<OtherWordSize>() const;	
+			constexpr operator BigNumber<OtherWordSize>() const {
+				BigNumber<OtherWordSize> tmp = 0;
+				bool m_nega = isNegative();
+				uint32_t i = 0;
+
+				for (i = OtherWordSize; i >= IndexSize; i--) {
+					//tmp[counter] = m_nega ? subNum_Max : subNum_min;
+					tmp[i] = subNum_min;
+				}
+
+				for (i = 0; i < IndexSize; i++) {
+					tmp[i] = m_nega ? (subNum_Max - numidx[i]) : numidx[i];
+				}
+
+				++tmp;
+
+				//tmp[OtherWordSize - 1] |= static_cast<uint32_t>(m_nega ? 0x80000000U : 0U);
+				return m_nega ? tmp.negate_v() : tmp;
+			}
 			
 			constexpr explicit operator int() const;
 			constexpr explicit operator uint32_t() const;
@@ -667,4 +690,3 @@ constexpr BigMath::BigNumber<WordSize> operator>>(const BigMath::BigNumber<WordS
 #include "BigNumberPrint.h"
 #include "BigNumberGlobalFunc.h"
 #include "BigNumberLimits.h"
-

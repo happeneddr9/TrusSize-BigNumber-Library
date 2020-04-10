@@ -45,31 +45,13 @@ void print_bigNumHex(const BigNumber<WordSize>& num, bool print_zero = true) {
 
 template <size_t WordSize>
 std::ostream& operator<<(std::ostream& os, const BigMath::BigNumber<WordSize>& val) {
-	static const uint32_t maxLength = 12 * WordSize + 8;			// get digits in decimal
-	// log(2 ^ n) + 1 => log(2 ^ 32) * WordSize + bias
-
+	static const uint32_t maxLength = 10 * WordSize + 8;			// get digits in decimal
+	// log10(2 ^ n) + 1 => log10(2 ^ 32) * WordSize + bias
+	// log10(2 ^ 32) -> 9.633 -> 10
 	char buff[maxLength];
 	memset(buff, '\0', maxLength);
 	val.toStringDec(buff);
 	os << buff;
-
-	/*char *str = &(buff[maxLength - 2]);
-	BigMath::BigNumber<WordSize> tmp = val;
-	BigMath::BigNumber<WordSize> math_tmp;
-	memset(buff, '\0', maxLength);
-	int val_buf;
-
-	if(tmp.isNegative()){
-		os.put('-');
-		tmp.abs();
-	}
-
-	do {
-		tmp.divmod(10, math_tmp);
-		val_buf = (math_tmp[0] % 10);
-		*--str = static_cast<char>(val_buf + '0');
-	} while (!tmp.isZero());
-	os << str;*/
 
 	return os;
 }
@@ -95,17 +77,17 @@ const BigNumber<4> BigNumberArray[] = {
 };
 
 print_t& BigNumberDemo(print_t& os) {
-	BigNumber<1> a;
-	BigNumber<2> b;
-	BigNumber<4> c;
-	BigNumber<8> d;
-	BigNumber<16> e(9999.0f);
+	BigNumber<2> a;
+	BigNumber<4> b;
+	BigNumber<8> c;
+	BigNumber<16> d;
+	BigNumber<32> e(9999.0f);
 	os << "======== BigNumber Demo Start ========" << endl;
-	os << "sizeof(BN<1> a) = " << sizeof(a) << " bytes" << endl;
-	os << "sizeof(BN<2> b) = " << sizeof(b) << " bytes" << endl;
-	os << "sizeof(BN<4> c) = " << sizeof(c) << " bytes" << endl;
-	os << "sizeof(BN<8> d) = " << sizeof(d) << " bytes" << endl;
-	os << "sizeof(BN<16> e) = " << sizeof(e) << " bytes" << endl;
+	os << "sizeof(BN<2> a) = " << sizeof(a) << " bytes" << endl;
+	os << "sizeof(BN<4> b) = " << sizeof(b) << " bytes" << endl;
+	os << "sizeof(BN<8> c) = " << sizeof(c) << " bytes" << endl;
+	os << "sizeof(BN<16> d) = " << sizeof(d) << " bytes" << endl;
+	os << "sizeof(BN<32> e) = " << sizeof(e) << " bytes" << endl;
 
 	os << std::fixed << std::setprecision(6);
 
@@ -126,12 +108,12 @@ print_t& BigNumberDemo(print_t& os) {
 	os << "a *= 12345" << endl;
 	os << "a = " << a << endl;
 	// Division test
-	a /= 12;
-	os << "a /= 12" << endl;
+	a /= 16;
+	os << "a /= 16" << endl;
 	os << "a = " << a << endl;
 	// Modulus test
-	a %= 13;
-	os << "a %= 13" << endl;
+	a %= 16;
+	os << "a %= 16" << endl;
 	os << "a = " << a << endl;
 
 	os << "======== Init by string ========" << endl;
@@ -229,13 +211,15 @@ typedef BigNumber<4> BigNum128;
 typedef BigNumber<8> BigNum256;
 typedef BigNumber<32> BigNum1024;
 typedef BigNumber<64> BigNum2048;
+typedef BigNumber<128> BigNum4096;
 typedef BigNumber<256> BigNum8192;
 
-using test_type = BigNum256;
+using test_type = BigNum2048;
+using other_type = BigNum256;
 
 int main() {
 	test_type test = 0;
-	test_type ver = 0;
+	other_type ver = 0;
 	cout << std::boolalpha;
 	cout << std::setprecision(10);
 
@@ -252,39 +236,12 @@ int main() {
 	auto end = std::chrono::system_clock::now();
 	auto elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 	cout << "time used: " << elapsed.count() << " us\n\n\n";
-	srand(time(0));
 
 	cout << "BigNumbers size = " << sizeof(test_type) << endl;
 	cout << "=============================================================================" << '\n';
-	cout << "multiplication speed test" << '\n';
-	start = std::chrono::system_clock::now();
-	
-	for (uint32_t i = 0; i < 100; ++i) {
-		test.random();
-		ver.random();
-		for (uint32_t j = 0; j < 100; ++j)
-			test *= ver;
-	}
-	end = std::chrono::system_clock::now();
-	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-	cout << "time used: " << elapsed.count() << " us" << '\n';
-
-	cout << "=============================================================================" << '\n';
-	cout << "division speed test" << '\n';
-	start = std::chrono::system_clock::now();
-	for (uint32_t i = 0; i < 100; ++i) {
-		test.random();
-		ver.random();
-		for (uint32_t j = 0; j < 100; ++j)
-			test /= ver;
-	}
-	end = std::chrono::system_clock::now();
-	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
-	cout << "time used: " << elapsed.count() << " us" << '\n';
-
-	cout << "=============================================================================" << '\n';
 	
 	start = std::chrono::system_clock::now();
+	cout << "digits : " << std::numeric_limits<test_type>::max().digits10() << endl;
 	cout << "Maximum: " << std::numeric_limits<test_type>::max() << endl;
 	cout << "minimum: " << std::numeric_limits<test_type>::min() << endl;
 	end = std::chrono::system_clock::now();
@@ -293,9 +250,13 @@ int main() {
 	cout << "print time used: " << elapsed.count() << " us" << '\n';
 	cout << "=============================================================================" << '\n';
 	
-	test.random();
+	test.random(0);		// range: 0 to maximum
 	start = std::chrono::system_clock::now();
-	cout << test.toString(16) << endl;			// to HEX string
+	cout << "BIN: " << test.toString(2) << "\n\n";			// to BIN string
+	cout << "QUA: " << test.toString(4) << "\n\n";			// to QUA string
+	cout << "OCT: " << test.toString(8) << "\n\n";			// to OCT string
+	cout << "DEC: " << test.toString(10) << "\n\n";			// to DEC string
+	cout << "HEX: " << test.toString(16) << "\n\n";			// to HEX string
 	end = std::chrono::system_clock::now();
 
 	elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end - start);

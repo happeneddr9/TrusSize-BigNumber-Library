@@ -208,7 +208,7 @@ namespace BigMath {
 	template <size_t OtherWordSize>
 	constexpr BigNumber<WordSize>& BigNumber<WordSize>::operator=(const BigNumber<OtherWordSize> &other){
 		uint32_t i = 0;
-		if (OtherWordSize > WordSize) {
+		if (OtherWordSize >= WordSize) {
 			for (; i < WordSize; ++i) {
 				numidx[i] = other[i];
 			}
@@ -443,7 +443,7 @@ namespace BigMath {
 
 
 		do {
-			i -= 1; /* Decrement first, to start with last array element */
+			--i; /* Decrement first, to start with last array element */
 			if (numidx[i] > rhs[i]) {
 				//return self_nega ? SMALLER : LARGER;
 				return LARGER;
@@ -593,6 +593,30 @@ namespace BigMath {
 		return *this;
 	}
 
+	/**
+	 *	@brief:	BigNumber Addition, with index bias control.
+	 *
+	 *
+	 */
+	template<size_t WordSize>
+	inline constexpr BigNumber<WordSize>& BigNumber<WordSize>::add(const BigNumber<WordSize>& rhs, size_t start_at)
+	{
+		
+		if (start_at < WordSize) {
+			bool carry = false;
+			uint32_t tmpreg = 0;
+			uint32_t pos;
+			for (uint32_t i = 0; i < (IndexSize - start_at); ++i) {
+				pos = i + start_at;
+				tmpreg = numidx[pos];
+				numidx[pos] += rhs[i] + static_cast<uint32_t>(carry);
+				carry = (numidx[pos] < tmpreg || (numidx[pos] == tmpreg && carry));
+			}
+		}
+		return *this;
+	}
+
+
 	/* Normal number convert */
 
 	template <size_t WordSize>
@@ -630,12 +654,13 @@ namespace BigMath {
 		for (;;) {
 			// BigNumbers division is slow so do it for a group of four digits instead
 			// of for every digit. 
-			if (tmp < 10) return result;
-			if (tmp < 100) return result + 1;
-			if (tmp < 1000) return result + 2;
-			if (tmp < 10000) return result + 3;
-			tmp /= 10000;
-			result += 4;
+			if (tmp < 10u) return result;
+			if (tmp < 100u) return result + 1;
+			if (tmp < 1000u) return result + 2;
+			if (tmp < 10000u) return result + 3;
+			if (tmp < 100000u) return result + 4;
+			tmp.divmod(100000u);
+			result += 5;
 		}
 	}
 
@@ -657,7 +682,7 @@ namespace BigMath {
 
 		tmp_larger.abs();
 		uint32_t digits = tmp_larger.digits10();
-		uint32_t div_num;
+		uint32_t div_num, q;
 		uint32_t next = digits;
 
 		str[next] = '\0';
@@ -671,10 +696,10 @@ namespace BigMath {
 			// use BigNumber divide to 10 is too slow, so that it divide a larger number,
 			// and use the Remainder as new dividend for modulus 10 calculation.
 			tmp_larger.divmod(div_value, math_tmp);
-			div_num = static_cast<uint32_t>(math_tmp);
+			div_num = math_tmp[0];
 			zero_check = !tmp_larger.isZero();
 			for (i = 0; i < div_digits; ++i) {
-				auto const q = div_num / 10;
+				q = div_num / 10u;
 				str[next] = "0123456789"[div_num % 10u];
 				--next;
 				if (q == 0 && !zero_check) {
@@ -683,7 +708,7 @@ namespace BigMath {
 				div_num = q;
 			}
 		} while (zero_check);
-		return &(str[next]);
+		return &(str[next]) + digits;
 	}
 
 	template <size_t WordSize>
@@ -766,13 +791,13 @@ namespace BigMath {
 		if (base >= 16)
 			lowest_size = 8;
 		else if (base >= 8)
-			lowest_size = 11;
+			lowest_size = 11;	// log8(2 ^ 32) = 10.6666.
 		else if (base >= 4)
 			lowest_size = 16;
 		else if (base >= 2)
 			lowest_size = 32;
 		else
-			lowest_size = 10;		// default base = 10
+			lowest_size = 10;	// default base = 10, log10(2 ^ 32) = 9.633.
 		lowest_size *= (WordSize + 1);
 		lowest_size += 4;
 		char *cstr = new char[lowest_size];
@@ -831,17 +856,19 @@ namespace BigMath {
 	 *	@Method:	add 2 index with pre-levels carry.
 	 *				if "a + b < a && carry = false";	'a' overflowed.
 	 *				if "a + b = a && carry = true"; 	'a' overflowed.
+	 *		(update)	moved to add().
 	 */
 	template <size_t WordSize>
-	constexpr BigNumber<WordSize>& BigNumber<WordSize>::operator +=(const BigNumber<WordSize>& rhs) {
-		bool carry = false;
+	inline constexpr BigNumber<WordSize>& BigNumber<WordSize>::operator +=(const BigNumber<WordSize>& rhs) {
+		/*bool carry = false;
 		uint32_t tmpreg = 0;
 		for (uint32_t i = 0; i < IndexSize; i++) {
 			tmpreg = numidx[i];
 			numidx[i] += rhs[i] + static_cast<uint32_t>(carry);
 			carry = (numidx[i] < tmpreg || (numidx[i] == tmpreg && carry));
 		}
-		return *this;
+		return *this;*/
+		return add(rhs);
 	}
 
 	/**
@@ -849,17 +876,19 @@ namespace BigMath {
 	 *	@Method:	a - b = a + (-b)
 	 */
 	template <size_t WordSize>
-	constexpr BigNumber<WordSize>& BigNumber<WordSize>::operator -=(const BigNumber<WordSize> &rhs) {
-		*this += rhs.invert_v();
+	inline constexpr BigNumber<WordSize>& BigNumber<WordSize>::operator -=(const BigNumber<WordSize> &rhs) {
+		add(rhs.invert_v());
 		return *this;
 	}
 
 	/**
 	 *	@brief:		BigNumber Multiplication
 	 *	@Method:	need "32-bits * 32-bits = 64-bits" Multiplier supports
+	 *		
+	 *		(update)	optimized by using new addition function.
 	 */
 	template <size_t WordSize>
-	constexpr BigNumber<WordSize>& BigNumber<WordSize>::operator *=(const BigNumber<WordSize> &rhs) {
+	inline constexpr BigNumber<WordSize>& BigNumber<WordSize>::operator *=(const BigNumber<WordSize> &rhs) {
 		//bool self_nega, rhs_nega;
 
 		/*self_nega = isNegative();
@@ -876,25 +905,27 @@ namespace BigMath {
 			*this <<= rhs.high_bit();
 		}
 		else {
-			BigNumber<WordSize> row;
-			BigNumber<WordSize> tmp;
-			//BigNumber<WordSize> rhs_tmp(rhs);
+			// BigNumber<WordSize> row;
+			// BigNumber<WordSize> tmp;
+			// BigNumber<WordSize> rhs_tmp(rhs);
 			BigNumber<WordSize> output;
 			uint32_t i, j;
 			uint64_t intermediate;
 			for (i = 0; i < IndexSize; ++i) {
-				row.clear();
+				//row.clear();
 				for (j = 0; j < IndexSize; ++j) {
-					if (i + j < IndexSize) {
+					if (static_cast<uint32_t>(i + j) < IndexSize) {
 						if (numidx[i] + rhs.numidx[j] != 0) {
-							intermediate = static_cast<uint64_t>(numidx[i])* static_cast<uint64_t>(rhs.numidx[j]);
-							tmp = intermediate;
-							tmp.lshift_word(i + j);
-							row += tmp;
+							intermediate = static_cast<uint64_t>(numidx[i]) * static_cast<uint64_t>(rhs.numidx[j]);
+							/*tmp = intermediate;
+							tmp.lshift_word(static_cast<uint32_t>(i + j));
+							row += tmp;*/
+							//row.add(intermediate, i + j);
+							output.add(intermediate, i + j);
 						}
 					}
 				}
-				output += row;
+				//output += row;
 			}
 			//*this = (self_nega ^ rhs_nega) ? (-output) : output;
 			*this = output;
@@ -904,20 +935,21 @@ namespace BigMath {
 
 	/**
 	 *	@brief:		BigNumber Division
-	 *	@Method:	original is refer from https://github.com/kokke/tiny-bignum-c,
-	 *				now it use new algorithmon
+	 *	@Method:	optimized algorithm from https://github.com/kokke/tiny-bignum-c.
+	 *				
 	 */
 	template <size_t WordSize>
-	constexpr BigNumber<WordSize>& BigNumber<WordSize>::operator /=(const BigNumber<WordSize> &rhs) {
+	inline constexpr BigNumber<WordSize>& BigNumber<WordSize>::operator /=(const BigNumber<WordSize> &rhs) {
 		return divmod(rhs);
 	}
 
 	/**
 	 *	@brief:		Modulus
 	 *	@Method:	looking for a better way
+	 *				The remainder is a by-product of division.
 	 */
 	template <size_t WordSize>
-	constexpr BigNumber<WordSize>& BigNumber<WordSize>::operator %=(const BigNumber<WordSize> &rhs) {
+	inline constexpr BigNumber<WordSize>& BigNumber<WordSize>::operator %=(const BigNumber<WordSize> &rhs) {
 		BigNumber<WordSize> tmp;
 		divmod(rhs, tmp);
 		*this = tmp;
@@ -929,7 +961,7 @@ namespace BigMath {
 	 *	@Method:	division with remainder
 	 *
 	 *	@update:	2020/04/08:
-	 *					new function for division
+	 *					new function for division, the remainder is a by-product of division.
 	 */
 	template <size_t WordSize>
 	constexpr BigNumber<WordSize>& BigNumber<WordSize>::divmod(const BigNumber<WordSize> &rhs, BigNumber<WordSize> *remainder) {
@@ -939,9 +971,11 @@ namespace BigMath {
 		remainder = *this - remainder;
 		*this = tmp;*/
 
-		// Special case handling
+		// clear remainder
 		if (remainder != nullptr)
 			*remainder = 0;
+		
+		// Special case handling
 		if (rhs.isZero()) {		// divided by zero
 			*this = -1;
 		}
@@ -954,50 +988,55 @@ namespace BigMath {
 		else if (*this == rhs) {
 			*this = 1;
 		}
-		else if (rhs.is_power_of_2()) {
-			*this >>= rhs.high_bit();
-		}
 		else {
 
 			// for fix 'minValue' problem, WordSize should larger than original.
 			using larger_type = BigNumber<WordSize + 1>;
 			using ori_type = BigNumber<WordSize>;
 			larger_type current = 1;
-			larger_type divisor = static_cast<larger_type>(rhs);
-			larger_type dividend = static_cast<larger_type>(*this);
+			larger_type divisor = static_cast<larger_type>(rhs);		// a copy of rhs
+			larger_type dividend = static_cast<larger_type>(*this);		// a copy of this
 			larger_type ans;
 
+			// division need to use positive number in calculating.
 			bool dividend_nega = dividend.isNegative();
 			bool divisor_nega = divisor.isNegative();
 
 			dividend.abs();
 			divisor.abs();
-
-			if (dividend < divisor) {
-				if (remainder != nullptr)
-					*remainder = *this;
-				*this = 0;
+			if (divisor.is_power_of_2()) {
+				ans = dividend >> divisor.high_bit();
+				--divisor;
+				dividend &= divisor;
 			}
 			else {
-
-				while (divisor <= dividend) {	// let divisor align to dividend.
-					current <<= 1;
-					divisor <<= 1;
+				if (dividend < divisor) {
+					if (remainder != nullptr)
+						*remainder = *this;
+					*this = 0;
 				}
+				else {
 
-				while (!current.isZero()) {
-					if (dividend >= divisor) {
-						dividend -= divisor;
-						ans |= current;
+					while (divisor <= dividend) {	// let divisor align to dividend.
+						current <<= 1;
+						divisor <<= 1;
 					}
-					current >>= 1;
-					divisor >>= 1;
+
+					while (!current.isZero()) {
+						if (dividend >= divisor) {
+							dividend -= divisor;
+							ans |= current;
+						}
+						current >>= 1;
+						divisor >>= 1;
+					}
 				}
-				// A exclusive or B is negative, Quotient is negative
-				*this = static_cast<ori_type>((dividend_nega ^ divisor_nega) ? (-ans) : (ans));
-				if (remainder != nullptr)
-					*remainder = static_cast<ori_type>((dividend_nega) ? (-dividend) : dividend);
 			}
+			// A exclusive or B is negative, Quotient is negative
+			*this = static_cast<ori_type>((dividend_nega ^ divisor_nega) ? (-ans) : (ans));
+			if (remainder != nullptr)
+				*remainder = static_cast<ori_type>((dividend_nega) ? (-dividend) : dividend);
+
 		}
 		return *this;
 	}
@@ -1193,7 +1232,10 @@ namespace BigMath {
 	template <size_t WordSize>
 	constexpr BigNumber<WordSize>& BigNumber<WordSize>::lshift_word(size_t n) {
 		int i;
-		if (n == 0) {		// don't do anything
+		if (n >= IndexSize) {
+			clear();
+		}
+		else if (n == 0) {		// don't do anything
 			
 		}
 		else {
@@ -1213,9 +1255,7 @@ namespace BigMath {
 	constexpr BigNumber<WordSize>& BigNumber<WordSize>::rshift_word(size_t n) {
 		int i;
 		if (n >= IndexSize) {
-			for (i = 0; i < static_cast<int>(IndexSize); ++i) {
-				numidx[i] = 0;
-			}
+			clear();
 		}
 		else if (n == 0) {	// don't do anything
 			
@@ -1254,31 +1294,7 @@ namespace BigMath {
 		return isZero();
 	}
 
-	/**
-	 *	@brief:		BigNumber convert to any size
-	 * 	@Method:	
-	 */
-	template <size_t WordSize>
-	template <size_t OtherWordSize>
-	inline constexpr BigNumber<WordSize>::operator BigNumber<OtherWordSize>() const {
-		BigNumber<OtherWordSize> tmp = 0;
-		bool m_nega = isNegative();
-		uint32_t i = 0;
-
-		for (i = OtherWordSize; i >= IndexSize; i--) {
-			//tmp[counter] = m_nega ? subNum_Max : subNum_min;
-			tmp[i] = subNum_min;
-		}
-
-		for (i = 0; i < IndexSize; i++) {
-			tmp[i] = m_nega ? (subNum_Max - numidx[i]) : numidx[i];
-		}
-
-		++tmp;
-
-		//tmp[OtherWordSize - 1] |= static_cast<uint32_t>(m_nega ? 0x80000000U : 0U);
-		return m_nega ? tmp.negate_v() : tmp;
-	}
+	
 
 	/* convert BigNumber to integer */
 	template <size_t WordSize>
