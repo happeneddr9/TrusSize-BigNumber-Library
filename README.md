@@ -2,7 +2,7 @@
 Static variadic large-size integer without dynamic memory allocation
 
 ## Description
-Tiny portable [Arbitrary-precision arithmetic](https://en.wikipedia.org/wiki/Arbitrary-precision_arithmetic) in modern C++ class, uses an array of `uint32_t` as underlying type, no any one bits wasted in each word, variadic array length signed integer, how many size how many range, You can easily set any size integer you want for your project.
+Tiny portable [Arbitrary-precision arithmetic](https://en.wikipedia.org/wiki/Arbitrary-precision_arithmetic)(任意精度演算法) in modern C++ class, uses an array of `uint32_t` as underlying type, no any one bits wasted in each word, variadic array length signed integer, how many size how many range, You can easily set any size integer you want for your project.
 
 ## Requirements
 - C++11 or later.
